@@ -1,0 +1,55 @@
+//+optional-semicolons
+
+use core.os
+use core.string
+use core.iter
+use core {
+    printf
+}
+
+Examples_Dir :: "./examples"
+
+Example :: struct {
+    code: str
+    tags: [] str
+    author: str
+    description: str
+}
+
+main :: () {
+    examples: [..] Example
+
+    for file in os.list_directory(Examples_Dir) {
+        name := file->name()
+        if !string.ends_with(name, ".onyx") do continue
+
+        contents := os.get_contents(os.path_join(Examples_Dir, name))
+        basename := string.bisect(name, ".")
+
+        ex: Example
+
+        if !string.starts_with(contents, "/*===") {
+            logf(.Error, "'{}' is not a valid example because it does not contain a metadata block.", name)
+        }
+
+        metadata, code := string.bisect(contents, "===*/")
+        ex.code = string.strip_whitespace(code)
+
+        for md in string.split_iter(metadata, "\n") {
+            key, value := string.bisect(md, ":")
+            key = string.strip_whitespace(key)
+            value = string.strip_whitespace(value)
+
+            switch key {
+                case "author" do ex.author = value
+                case "description" do ex.description = value
+                case "tags" do ex.tags = string.split_iter(value, " ") |> iter.collect()
+            }
+        }
+
+        examples << ex
+    }
+
+    printf("{p}\n", examples)
+}
+
