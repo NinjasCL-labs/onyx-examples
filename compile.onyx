@@ -13,6 +13,7 @@ Examples_Dir :: "./examples"
 
 Example :: struct {
     code: str
+    title: str
     name: str
     tags: [] str
     author: str
@@ -45,9 +46,10 @@ main :: () {
             value = string.strip_whitespace(value)
 
             switch key {
-                case "author" do ex.author = value
+                case "title"       do ex.title = value
+                case "author"      do ex.author = value
                 case "description" do ex.description = value
-                case "tags" do ex.tags = string.split_iter(value, " ") |> iter.collect()
+                case "tags"        do ex.tags = string.split_iter(value, " ") |> iter.collect()
             }
         }
 
@@ -66,7 +68,7 @@ main :: () {
         w := io.writer_make(&f)
         defer io.writer_free(&w)
 
-        io.write_format(&w, "<h1 class='title'>{}</h1>\n", ex.name)
+        io.write_format(&w, "<h1 class='title'>{}</h1>\n", ex.title)
         io.write_format(&w, "<p class='author'>{}</p>\n", ex.author)
         io.write_format(&w, "<div class='description'>{}</div>\n", ex.description)
         io.write_format(&w, "<pre class='hljs'><code class='language-onyx'>{}</code></pre>\n", ex.code)
