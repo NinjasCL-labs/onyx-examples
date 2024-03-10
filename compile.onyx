@@ -1,16 +1,19 @@
 //+optional-semicolons
 
 use core.os
+use core.io
 use core.string
 use core.iter
 use core {
     printf
+    tprintf
 }
 
 Examples_Dir :: "./examples"
 
 Example :: struct {
     code: str
+    name: str
     tags: [] str
     author: str
     description: str
@@ -24,9 +27,10 @@ main :: () {
         if !string.ends_with(name, ".onyx") do continue
 
         contents := os.get_contents(os.path_join(Examples_Dir, name))
-        basename := string.bisect(name, ".")
+        basename := string.bisect(name, ".") |> string.alloc_copy()
 
         ex: Example
+        ex.name = basename
 
         if !string.starts_with(contents, "/*===") {
             logf(.Error, "'{}' is not a valid example because it does not contain a metadata block.", name)
@@ -50,6 +54,22 @@ main :: () {
         examples << ex
     }
 
-    printf("{p}\n", examples)
+    if !os.dir_exists("./compilation") {
+        os.dir_create("./compilation")
+    }
+
+    for &ex in examples {
+        logf(.Info, "Generating {}", ex.name)
+        f := os.open(os.path_join("./compilation", tprintf("{}.html", ex.name)), .Write)->unwrap()
+        defer os.close(&f)
+
+        w := io.writer_make(&f)
+        defer io.writer_free(&w)
+
+        io.write_format(&w, "<h1 class='title'>{}</h1>\n", ex.name)
+        io.write_format(&w, "<p class='author'>{}</p>\n", ex.author)
+        io.write_format(&w, "<div class='description'>{}</div>\n", ex.description)
+        io.write_format(&w, "<pre class='hljs'><code class='language-onyx'>{}</code></pre>\n", ex.code)
+    }
 }
 
