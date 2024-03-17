@@ -4,12 +4,15 @@ use core.os
 use core.io
 use core.string
 use core.iter
+use core.array
+use core.encoding.json
 use core {
     printf
     tprintf
 }
 
-Examples_Dir :: "./examples"
+Examples_Dir    :: "./examples"
+Compilation_Dir :: "./compilation"
 
 Example :: struct {
     code: str
@@ -20,9 +23,19 @@ Example :: struct {
     description: str
 }
 
+ExamplesMetadata :: struct {
+    by_tag: json.Value
+
+    // These examples will not have the code property set,
+    // to avoid lot of bloat.
+    list:   [..] Example 
+}
+
 main :: () {
     examples: [..] Example
 
+    //
+    // Find and process all examples
     for file in os.list_directory(Examples_Dir) {
         name := file->name()
         if !string.ends_with(name, ".onyx") do continue
@@ -56,13 +69,15 @@ main :: () {
         examples << ex
     }
 
-    if !os.dir_exists("./compilation") {
-        os.dir_create("./compilation")
+    //
+    // Output processed examples into compilation folder.
+    if !os.dir_exists(Compilation_Dir) {
+        os.dir_create(Compilation_Dir)
     }
 
     for &ex in examples {
         logf(.Info, "Generating {}", ex.name)
-        f := os.open(os.path_join("./compilation", tprintf("{}.html", ex.name)), .Write)->unwrap()
+        f := os.open(os.path_join(Compilation_Dir, tprintf("{}.html", ex.name)), .Write)->unwrap()
         defer os.close(&f)
 
         w := io.writer_make(&f)
@@ -72,6 +87,39 @@ main :: () {
         io.write_format(&w, "<p class='author'>{}</p>\n", ex.author)
         io.write_format(&w, "<div class='description'>{}</div>\n", ex.description)
         io.write_format(&w, "<pre class='hljs'><code class='language-onyx'>{}</code></pre>\n", ex.code)
+    }
+
+    //
+    // Output metadata.
+    md: ExamplesMetadata
+    md.list = iter.as_iter(examples)
+        |> iter.map(x => Example.{
+            title = x.title,
+            name = x.name,
+            description = x.description,
+            author = x.author,
+            tags = x.tags,
+        })
+        |> iter.collect()
+
+    by_tag := make(Map(str, [..] str))
+    for &ex in examples {
+        for tag in ex.tags {
+            example_list := by_tag->get_ptr_or_create(tag)
+            array.push(example_list, ex.name)
+        }
+    }
+
+    md.by_tag = json.empty_object()
+    for by_tag->as_iter() {
+        json.set(md.by_tag, it.key, json.from_any(&it.value))
+    }
+
+    for f in os.with_file(os.path_join(Compilation_Dir, "index.json"), .Write) {
+        w := io.writer_make(f)
+        defer io.writer_free(&w)
+
+        json.encode(&w, md)
     }
 }
 
