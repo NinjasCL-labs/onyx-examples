@@ -115,11 +115,9 @@ main :: () {
         json.set(md.by_tag, it.key, json.from_any(&it.value))
     }
 
-    for f in os.with_file(os.path_join(Compilation_Dir, "index.json"), .Write) {
-        w := io.writer_make(f)
-        defer io.writer_free(&w)
+    use f := os.open(os.path_join(Compilation_Dir, "index.json"), .Write).Ok?
+    use w := io.writer_make(&f)
 
-        json.encode(&w, md)
-    }
+    json.encode(&w, md)
 }
 
