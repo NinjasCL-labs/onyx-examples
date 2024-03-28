@@ -2,9 +2,7 @@
 
 use core.os
 use core.io
-use core.string
 use core.iter
-use core.array
 use core.encoding.json
 use core {
     printf
@@ -38,31 +36,31 @@ main :: () {
     // Find and process all examples
     for file in os.list_directory(Examples_Dir) {
         name := file->name()
-        if !string.ends_with(name, ".onyx") do continue
+        if !name->ends_with(".onyx") do continue
 
         contents := os.get_contents(os.path_join(Examples_Dir, name))
-        basename := string.bisect(name, ".") |> string.alloc_copy()
+        basename := str.bisect(name, ".") |> str.copy()
 
         ex: Example
         ex.name = basename
 
-        if !string.starts_with(contents, "/*===") {
+        if !contents->starts_with("/*===") {
             logf(.Error, "'{}' is not a valid example because it does not contain a metadata block.", name)
         }
 
-        metadata, code := string.bisect(contents, "===*/")
-        ex.code = string.strip_whitespace(code)
+        metadata, code := str.bisect(contents, "===*/")
+        ex.code = str.strip_whitespace(code)
 
-        for md in string.split_iter(metadata, "\n") {
-            key, value := string.bisect(md, ":")
-            key = string.strip_whitespace(key)
-            value = string.strip_whitespace(value)
+        for md in metadata->split_iter("\n") {
+            key, value := str.bisect(md, ":")
+            key = str.strip_whitespace(key)
+            value = str.strip_whitespace(value)
 
             switch key {
                 case "title"       do ex.title = value
                 case "author"      do ex.author = value
                 case "description" do ex.description = value
-                case "tags"        do ex.tags = string.split_iter(value, " ") |> iter.collect()
+                case "tags"        do ex.tags = str.split_iter(value, " ")->collect()
             }
         }
 
@@ -77,11 +75,8 @@ main :: () {
 
     for &ex in examples {
         logf(.Info, "Generating {}", ex.name)
-        f := os.open(os.path_join(Compilation_Dir, tprintf("{}.html", ex.name)), .Write)->unwrap()
-        defer os.close(&f)
-
-        w := io.writer_make(&f)
-        defer io.writer_free(&w)
+        use f := os.open(os.path_join(Compilation_Dir, tprintf("{}.html", ex.name)), .Write)->unwrap()
+        use w := io.Writer.make(&f)
 
         io.write_format(&w, "<h1 class='title'>{}</h1>\n", ex.title)
         io.write_format(&w, "<p class='author'>{}</p>\n", ex.author)
@@ -93,20 +88,20 @@ main :: () {
     // Output metadata.
     md: ExamplesMetadata
     md.list = iter.as_iter(examples)
-        |> iter.map(x => Example.{
+        ->map(x => Example.{
             title = x.title,
             name = x.name,
             description = x.description,
             author = x.author,
             tags = x.tags,
         })
-        |> iter.collect()
+        ->collect()
 
     by_tag := make(Map(str, [..] str))
     for &ex in examples {
         for tag in ex.tags {
             example_list := by_tag->get_ptr_or_create(tag)
-            array.push(example_list, ex.name)
+            example_list->push(ex.name)
         }
     }
 
@@ -116,7 +111,7 @@ main :: () {
     }
 
     use f := os.open(os.path_join(Compilation_Dir, "index.json"), .Write).Ok?
-    use w := io.writer_make(&f)
+    use w := io.Writer.make(&f)
 
     json.encode(&w, md)
 }
