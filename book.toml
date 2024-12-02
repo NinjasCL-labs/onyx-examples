@@ -1,0 +1,17 @@
+[book]
+authors = ["Brendan Hansen"]
+language = "en"
+multilingual = false
+src = "examples"
+title = "Onyx Examples"
+description = "Onyx Complementary Documentation and Examples"
+
+[output.html]
+smart-punctuation = true
+mathjax-support = true
+site-url = "https://onyxlang.io/examples"
+git-repository-url = "https://github.com/onyx-lang/onyx-examples"
+additional-js = ["theme/onyx-syntax.js"]
+
+[output.html.code.hidelines]
+onyx = "//~"

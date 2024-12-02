@@ -1,10 +1,3 @@
-/*===
-title: Fibonacci Sequence
-tags: loops iterators
-author: Brendan Hansen
-description: This example shows three different ways to do the same thing: compute Fibonacci numbers.
-===*/
-
 use core.iter
 use core { printf }
 
@@ -36,7 +29,7 @@ fib_for_loop :: (n: i32) -> u64 {
 FibState :: struct { a, b: u64 }
 
 fib_by_fold :: (n: i32) => {
-    end_state := 
+    end_state :=
         // This creates an infinite iterator that simply counts up from 0.
         iter.counter()
 
@@ -70,7 +63,7 @@ fib_by_fold :: (n: i32) => {
 // to redo all the work for every query.
 //
 
-fib_iterator :: (n: i32) => 
+fib_iterator :: (n: i32) =>
     // This is implemented using a generator, which is a custom iterator
     // that yields values according to the "next" function defined below.
     iter.generator(
@@ -80,7 +73,7 @@ fib_iterator :: (n: i32) =>
         // The generation function. This takes in a pointer to the state
         // and must return an optional of the iteration type. If it is Some(u64)
         // then the iteration continues. If it is None, then the iterations stop.
-        // 
+        //
         // Notice that the parameter's type is a polymorphic here notice the $.
         // This is because the above structure literal is entirely type infered
         // no explicit type was given to it. Therefore, there is no type we can
@@ -117,5 +110,3 @@ main :: () {
         printf("{}: {}\n", index, value)
     }
 }
-
-

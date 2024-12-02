@@ -1,0 +1,702 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Onyx Examples</title>
+        <meta name="robots" content="noindex">
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="Onyx Complementary Documentation and Examples">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html">Overview</a></li><li class="chapter-item expanded affix "><a href="LICENSE.html">License</a></li><li class="chapter-item expanded affix "><a href="misc/hello.html">Hello Onyx!</a></li><li class="chapter-item expanded affix "><li class="part-title">Miscelaneous</li><li class="chapter-item expanded "><a href="misc/fib.html"><strong aria-hidden="true">1.</strong> Fibonacci</a></li><li class="chapter-item expanded "><a href="misc/files.html"><strong aria-hidden="true">2.</strong> Files</a></li><li class="chapter-item expanded "><a href="misc/stdin.html"><strong aria-hidden="true">3.</strong> Stdin</a></li><li class="chapter-item expanded affix "><li class="spacer"></li><li class="chapter-item expanded affix "><li class="part-title">Advent of Code</li><li class="chapter-item expanded affix "><li class="part-title">2024</li><li class="chapter-item expanded "><a href="advent-of-code/2024/day01/index.html"><strong aria-hidden="true">4.</strong> Day 01</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Onyx Examples</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/onyx-lang/onyx-examples" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="onyx-examples"><a class="header" href="#onyx-examples">Onyx Examples</a></h1>
+<p>This repository houses the collection of examples used on the official <a href="https://onyxlang.io/examples">Onyx website</a>.
+It exists here on GitHub for feedback and correction through <a href="https://github.com/onyx-lang/onyx-examples/issues">issues</a>,
+and community contributions through <a href="https://github.com/onyx-lang/onyx-examples/pulls">pull requests</a>.</p>
+<h2 id="contributing"><a class="header" href="#contributing">Contributing</a></h2>
+<p>If you have an example you would like to see on the website, I would love to include it!</p>
+<p>To submit an example, create a fork of this respository, add the example to
+your fork, then make a pull request on this repository. Your example will be
+reviewed, and I reserve the right to request modifications before merging the
+pull request.</p>
+<p>Each pull request should contain <strong>only one new example</strong>.
+This way, if one of your examples get hung up in review, another example
+could be merged immediately.</p>
+<p>You will also need to install <a href="https://github.com/rust-lang/mdBook"><code>mdbook</code></a> to compile the pages locally.</p>
+<p>First, fork the repository and clone it onto your machine. From there, you can make necessary edits.
+You can see them live by running the following.</p>
+<pre><code class="language-sh">mdbook serve
+</code></pre>
+<p>When you are ready, open a <a href="https://github.com/onyx-lang/onyx-examples/">pull request</a> on this repository and it will be reviewed!</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="license"><a class="header" href="#license">License</a></h1>
+<p>BSD 2-Clause License</p>
+<p>Copyright (c) Brendan Hansen et al.</p>
+<p>All rights reserved.</p>
+<p>Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:</p>
+<ol>
+<li>
+<p>Redistributions of source code must retain the above copyright notice, this
+list of conditions and the following disclaimer.</p>
+</li>
+<li>
+<p>Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation
+and/or other materials provided with the distribution.</p>
+</li>
+</ol>
+<p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS”
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="hello-onyx-world"><a class="header" href="#hello-onyx-world">Hello <strong>Onyx</strong> World</a></h1>
+<p>This is a (heavily commented) <em>“Hello, World!”</em> program for <strong>Onyx</strong>. It explains
+the very basics of an <strong>Onyx</strong> program.</p>
+<p>Every file is part of a package, which is specified on the first line of the file.
+If no package name is specified, the file is implicitly part of the ‘main’ package.
+So, the package specification below is redudant, but is there for sake of completeness.
+We will talk about the package system more later.</p>
+<pre><code class="language-onyx">package main
+</code></pre>
+<p>By default, the core standard libraries are included in any <strong>Onyx</strong> program. When
+designing the language, there wer two choices: include the standard libraries
+by default, or have the user include them. As the vast majority of <strong>Onyx</strong> programs
+use the standard library, I opted to include them by default. There is a compiler
+option to disable loading the standard library, if that is needed. For the sake
+of completeness, the following line manually includes the standard library, but
+this is not necessary.</p>
+<p>To use packages, use the ‘use’ keyword. The ‘core’ package houses all of the
+standard library functions. In the case of this program, we will just be using
+the ‘println’ function to print something to the screen.
+use core</p>
+<p>Below is the procedure declaration for <code>main</code>. While it might look weird at first
+sight, <strong>Onyx</strong> uses a consistent syntax for declaring static “things” (functions,
+structures, enums, etc.). It is always,</p>
+<pre><code class="language-onyx">the_name :: the_thing
+</code></pre>
+<p>In <strong>Onyx</strong> a function is simply parentheses enclosing the arguments, an optional
+return type, then the body. So below, <code>main</code> is an alias for a function that
+takes no parameters, and simply prints “Hello, World!”. You will see that this
+is the same syntax for just about everything else in the language.
+//
+<code>main</code>, like most programming languages, is the entry point for an <strong>Onyx</strong> program.
+In <strong>Onyx</strong>, <code>main</code> can either take 0 or 1 parameter(s), that being the command-line
+arguments passed. In programs that do not need them, they can simply be omitted.</p>
+<pre><code class="language-onyx">main :: () {
+    core.println("Hello, World!");
+}
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="fibonacci-sequence"><a class="header" href="#fibonacci-sequence">Fibonacci Sequence</a></h1>
+<ul>
+<li>tags: loops iterators</li>
+<li>author: Brendan Hansen</li>
+</ul>
+<p>This example shows three different ways to do the same thing: compute Fibonacci numbers.</p>
+<pre><code class="language-onyx">use core.iter
+use core { printf }
+
+//
+// Way number 1: A simple for-loop
+// This method simply uses a for-loop like you would in C to generate
+// the Fibonacci numbers. No tricks to it.
+//
+fib_for_loop :: (n: i32) -&gt; u64 {
+    a: u64 = 0
+    b: u64 = 1
+
+    for 0 .. n {
+        tmp := a
+        a = b
+        b = tmp + b
+    }
+
+    return a
+}
+
+//
+// Way number 2: Functional folding
+// This way creates an iterator that will yield n integers, thats the
+// iter.counter piped to iter.take(n). Then, for each one of those numbers
+// it steps the state, computing the Fibonacci numbers in the process.
+// The final result is the "a" member of the final state.
+
+FibState :: struct { a, b: u64 }
+
+fib_by_fold :: (n: i32) =&gt; {
+    end_state :=
+        // This creates an infinite iterator that simply counts up from 0.
+        iter.counter()
+
+        // This limits only taking the first n values.
+        |&gt; iter.take(n)
+
+        // This performs a "fold" or "reduce" operation.
+        |&gt; iter.fold(
+            // This defines the initial accumulator state.
+            FibState.{ a = 0, b = 1 },
+
+            // This defines the "folding" function. It takes the next value
+            // from the iterator, which we simply ignore because we do not
+            // need it, and the previous value of the accumulator. It then
+            // computes and returns the next value for the accumulator.
+            // iter.fold returns the final value of the accumulator.
+            (_, state) =&gt; FibState.{
+                a = state.b,
+                b = state.a + state.b
+            }
+        )
+
+    return end_state.a
+}
+
+
+//
+// Way number 3: A custom iterator
+// This way produces an iterator that yields consecutive Fibonacci numbers.
+// This is slightly faster than the previous methods because it does not have
+// to redo all the work for every query.
+//
+
+fib_iterator :: (n: i32) =&gt;
+    // This is implemented using a generator, which is a custom iterator
+    // that yields values according to the "next" function defined below.
+    iter.generator(
+        // The initial state of the generator.
+        &amp;.{ a = cast(u64) 0, b = cast(u64) 1, counter = n },
+
+        // The generation function. This takes in a pointer to the state
+        // and must return an optional of the iteration type. If it is Some(u64)
+        // then the iteration continues. If it is None, then the iterations stop.
+        //
+        // Notice that the parameter's type is a polymorphic here notice the $.
+        // This is because the above structure literal is entirely type infered
+        // no explicit type was given to it. Therefore, there is no type we can
+        // write here that would be correct. We could make a structure for it,
+        // but in this case it is fine to let the compiler do a little magic.
+        (state: &amp; $Ctx) -&gt; ? u64 {
+            if state.counter &lt;= 0 {
+                return .None
+            }
+
+            tmp := state.a
+            state.a = state.b
+            state.b = state.b + tmp
+
+            state.counter -= 1
+            return tmp
+        }
+    )
+
+
+main :: () {
+    // Print the results from fib_for_loop
+    for i in 0 .. 90 {
+        printf("{}: {}\n", i, fib_for_loop(i))
+    }
+
+    // Print the results from fib_by_fold
+    for i in 0 .. 90 {
+        printf("{}: {}\n", i, fib_by_fold(i))
+    }
+
+    // Print the results from fib_iterator
+    for value, index in fib_iterator(90) {
+        printf("{}: {}\n", index, value)
+    }
+}
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="file-operations"><a class="header" href="#file-operations">File Operations</a></h1>
+<ul>
+<li>tags: io reader os file</li>
+<li>author: Brendan Hansen</li>
+</ul>
+<p>This example shows various ways of reading and writing to a file. The core idea behind files in Onyx is that they extend the <code>io.Stream</code> structure, so you can use the <code>core.io</code> package to interact with them.</p>
+<pre><code class="language-onyx">use core.os
+use core.io
+use core.string
+use core {
+    printf
+}
+
+#doc "Writes example text into a file."
+write_data_into_file :: (filename: str) {
+    // This is one way of opening a file: call os.open and then os.close later.
+    // os.open returns a Result(os.File, os.FileError), so it must be handled
+    // to use the os.File. This program opts to unwrap the result.
+    file := os.open(filename, .Write)-&gt;unwrap()
+    defer os.close(&amp;file)
+
+    // Create an io.Writer over the file stream using io.writer_make.
+    // Also, free it later by defering io.writer_free. This also flushes
+    // the internal buffer of io.Writer to make sure everything is written
+    // to the file.
+    file_writer := io.Writer.make(&amp;file)
+    defer io.Writer.free(&amp;file_writer)
+
+    // The simplest way of writing a string to the file.
+    file_writer-&gt;write("This is the first line of text.\n")
+
+    // io.write_format can be used to "printf" into a file.
+    // printf can be thought of as io.write_format(&amp;stdio.stream, ...).
+    file_writer-&gt;write_format("This is a {} line of text.\n", "formatted")
+
+    for i in 0 .. 5 {
+        file_writer-&gt;write_format("Another line numbered {}.\n", i)
+    }
+}
+
+#doc "Reads example text from a file."
+read_whole_file :: (filename: str) {
+    // This is the simplest way to get the entire content of a file
+    // into a string ([] u8). Also, defer "deleting" the string, which
+    // will free the memory allocated for the string.
+    contents := os.get_contents(filename)
+    defer delete(&amp;contents)
+
+    printf("Whole contents:\n{}\n", contents)
+}
+
+main :: () {
+    filename := "test.txt"
+
+    write_data_into_file(filename)
+    read_whole_file(filename)
+}
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="standard-input"><a class="header" href="#standard-input">Standard Input</a></h1>
+<ul>
+<li>tags: input io reader conv</li>
+<li>author: Brendan Hansen</li>
+</ul>
+<p>This example reads a single line of input from <a href="https://en.wikipedia.org/wiki/Standard_streams">standard input</a>, splits it in half on the first space using <a href="https://docs.onyxlang.io/packages/core.string.html#bisect">string.bisect</a>, converts both parts to integers using <a href="https://docs.onyxlang.io/packages/core.conv.html#parse">conv.parse</a>, then prints the results using <a href="https://docs.onyxlang.io/packages/core.html#printf">printf</a> for formatted printing.</p>
+<pre><code class="language-onyx">// Use the necessary core libraries
+use core.io { Reader }
+use core.conv
+
+// Use the printf function that lives in the core package.
+// This cannot be `use core.printf`, because that will look
+// for a package called `printf` in `core`.
+use core {
+    printf, stdio
+}
+
+main :: () {
+    // Create a io.Reader over the stdio.stream to be able scan
+    // the input in parts. Also, defer freeing the reader until
+    // the end of `main`.
+    stdin_reader := Reader.make(&amp;stdio.stream)
+    defer Reader.free(&amp;stdin_reader)
+
+    // Read a single line of input.
+    line := stdin_reader-&gt;read_line()
+
+    // Split the line on the first space.
+    a_str, b_str := line-&gt;bisect(" ")
+
+    // Parse and convert both parts to i32s, with a default value
+    // of 0 if it fails to parse as an i32.
+    a_value := conv.parse(i32, a_str)-&gt;value_or(0)
+    b_value := conv.parse(i32, b_str)-&gt;value_or(0)
+
+    // Compute our result.
+    result := a_value + b_value
+
+    // Output our result using formatted printing.
+    printf("{} + {} = {}\n", a_value, b_value, result)
+}
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="advent-of-code-2024---day-1-solution"><a class="header" href="#advent-of-code-2024---day-1-solution">Advent of Code 2024 - Day 1 Solution</a></h1>
+<ul>
+<li>tags: str conv iterator slice</li>
+<li>author: Brendan Hansen</li>
+<li>see also: <a href="https://adventofcode.com/2024/">https://adventofcode.com/2024/</a></li>
+</ul>
+<p>In this solution we can see an example usage of the following items:</p>
+<ul>
+<li><a href="advent-of-code/2024/day01/"><code>~~</code> Operator</a></li>
+<li><a href="https://github.com/onyx-lang/onyx/blob/2612565e0dd479032c91dbe304f8909f7c79ee8a/core/conv/parse.onyx#L125">conv.parse/2</a></li>
+<li><a href="https://github.com/onyx-lang/onyx/blob/2612565e0dd479032c91dbe304f8909f7c79ee8a/core/container/iter.onyx#L421">Iterator.zip/2</a></li>
+<li><a href="https://github.com/onyx-lang/onyx/blob/2612565e0dd479032c91dbe304f8909f7c79ee8a/core/container/iter.onyx#L205">Iterator.map/2</a></li>
+<li><a href="https://github.com/onyx-lang/onyx/blob/2612565e0dd479032c91dbe304f8909f7c79ee8a/core/container/iter.onyx#L890">Iterator.sum/1</a></li>
+<li><a href="https://github.com/onyx-lang/onyx/blob/2612565e0dd479032c91dbe304f8909f7c79ee8a/core/os/file.onyx#L111">os.get_contents/1</a></li>
+<li><a href="https://github.com/onyx-lang/onyx/blob/2612565e0dd479032c91dbe304f8909f7c79ee8a/core/string/string.onyx#L648">str.bisect/2</a></li>
+<li><a href="https://github.com/onyx-lang/onyx/blob/2612565e0dd479032c91dbe304f8909f7c79ee8a/core/string/string.onyx#L315">str.strip_whitespace/1</a></li>
+<li><a href="https://github.com/onyx-lang/onyx/blob/2612565e0dd479032c91dbe304f8909f7c79ee8a/core/container/slice.onyx#L256">Slice.sort/2</a></li>
+<li><a href="https://github.com/onyx-lang/onyx/blob/2612565e0dd479032c91dbe304f8909f7c79ee8a/core/container/slice.onyx#L639">Slice.count_where/2</a></li>
+</ul>
+<h2 id="-day-1-historian-hysteria-"><a class="header" href="#-day-1-historian-hysteria-">— Day 1: Historian Hysteria —</a></h2>
+<p>The Chief Historian is always present for the big Christmas sleigh launch, but nobody has seen him in months! Last anyone heard, he was visiting locations that are historically significant to the North Pole; a group of Senior Historians has asked you to accompany them as they check the places they think he was most likely to visit.</p>
+<p>As each location is checked, they will mark it on their list with a star. They figure the Chief Historian must be in one of the first fifty places they’ll look, so in order to save Christmas, you need to help them get fifty stars on their list before Santa takes off on December 25th.</p>
+<p>Collect stars by solving puzzles. Two puzzles will be made available on each day in the Advent calendar; the second puzzle is unlocked when you complete the first. Each puzzle grants one star. Good luck!</p>
+<p>You haven’t even left yet and the group of Elvish Senior Historians has already hit a problem: their list of locations to check is currently empty. Eventually, someone decides that the best place to check first would be the Chief Historian’s office.</p>
+<p>Upon pouring into the office, everyone confirms that the Chief Historian is indeed nowhere to be found. Instead, the Elves discover an assortment of notes and lists of historically significant locations! This seems to be the planning the Chief Historian was doing before he left. Perhaps these notes can be used to determine which locations to search?</p>
+<p>Throughout the Chief’s office, the historically significant locations are listed not by name but by a unique number called the location ID. To make sure they don’t miss anything, The Historians split into two groups, each searching the office and trying to create their own complete list of location IDs.</p>
+<p>There’s just one problem: by holding the two lists up side by side (your puzzle input), it quickly becomes clear that the lists aren’t very similar. Maybe you can help The Historians reconcile their lists?</p>
+<p>For example:</p>
+<pre><code class="language-text">3   4
+4   3
+2   5
+1   3
+3   9
+3   3
+</code></pre>
+<p>Maybe the lists are only off by a small amount! To find out, pair up the numbers and measure how far apart they are. Pair up the smallest number in the left list with the smallest number in the right list, then the second-smallest left number with the second-smallest right number, and so on.</p>
+<p>Within each pair, figure out how far apart the two numbers are; you’ll need to add up all of those distances. For example, if you pair up a 3 from the left list with a 7 from the right list, the distance apart is 4; if you pair up a 9 with a 3, the distance apart is 6.</p>
+<p>In the example list above, the pairs and distances would be as follows:</p>
+<ul>
+<li>The smallest number in the left list is 1, and the smallest number in the right list is 3. The distance between them is 2.</li>
+<li>The second-smallest number in the left list is 2, and the second-smallest number in the right list is another 3. The distance between them is 1.</li>
+<li>The third-smallest number in both lists is 3, so the distance between them is 0.</li>
+<li>The next numbers to pair up are 3 and 4, a distance of 1.</li>
+<li>The fifth-smallest numbers in each list are 3 and 5, a distance of 2.</li>
+<li>Finally, the largest number in the left list is 4, while the largest number in the right list is 9; these are a distance 5 apart.</li>
+</ul>
+<p>To find the total distance between the left list and the right list, add up the distances between all of the pairs you found. In the example above, this is 2 + 1 + 0 + 1 + 2 + 5, a total distance of 11!</p>
+<p>Your actual left and right lists contain many location IDs. What is the total distance between your lists?</p>
+<h2 id="-part-two-"><a class="header" href="#-part-two-">— Part Two —</a></h2>
+<p>Your analysis only confirmed what everyone feared: the two lists of location IDs are indeed very different.</p>
+<p>Or are they?</p>
+<p>The Historians can’t agree on which group made the mistakes or how to read most of the Chief’s handwriting, but in the commotion you notice an interesting detail: a lot of location IDs appear in both lists! Maybe the other numbers aren’t location IDs at all but rather misinterpreted handwriting.</p>
+<p>This time, you’ll need to figure out exactly how often each number from the left list appears in the right list. Calculate a total similarity score by adding up each number in the left list after multiplying it by the number of times that number appears in the right list.</p>
+<p>Here are the same example lists again:</p>
+<pre><code class="language-text">3   4
+4   3
+2   5
+1   3
+3   9
+3   3
+</code></pre>
+<p>For these example lists, here is the process of finding the similarity score:</p>
+<ul>
+<li>The first number in the left list is 3. It appears in the right list three times, so the similarity score increases by 3 * 3 = 9.</li>
+<li>The second number in the left list is 4. It appears in the right list once, so the similarity score increases by 4 * 1 = 4.</li>
+<li>The third number in the left list is 2. It does not appear in the right list, so the similarity score does not increase (2 * 0 = 0).</li>
+<li>The fourth number, 1, also does not appear in the right list.</li>
+<li>The fifth number, 3, appears in the right list three times; the similarity score increases by 9.</li>
+<li>The last number, 3, appears in the right list three times; the similarity score again increases by 9.</li>
+</ul>
+<p>So, for these example lists, the similarity score at the end of this process is 31 (9 + 4 + 0 + 0 + 9 + 9).</p>
+<p>Once again consider your left and right lists. What is their similarity score?</p>
+<h2 id="solution"><a class="header" href="#solution">Solution</a></h2>
+<details>
+<summary>Show Solution</summary>
+<pre><code class="language-onyx">// Original Solution: https://github.com/brendanfh/onyx-aoc-2024/blob/master/solutions/day01.onyx
+
+use core {*}
+
+// MARK: Input
+
+/// The data structure will be two lists of integers (32 bit).
+Input :: struct {
+    first: [..] i32;
+    second: [..] i32;
+}
+
+// MARK: - Input Procedures
+
+/// This procedure will read the input file and return a string, trimming whitespace
+input_read_content :: () -&gt; str {
+    return os.get_contents("input.txt")
+        |&gt; str.strip_whitespace()
+}
+
+/// This will take the content text and transform it to a data structure that can be used in the solution.
+input_to_pairs :: (content : str) -&gt; Input {
+
+    input := Input.{}
+
+    for row in str.split_iter(content, "\n") {
+        // Split the row in two columns using the space as separator
+        first_string, second_string := str.bisect(row, "   ")
+
+        // Convert the strings to integers, so we can do math later
+        first_number := conv.parse(i32, first_string)!
+        second_number := conv.parse(i32, second_string)!
+
+        // Store the numbers in each list
+        input.first-&gt;push(first_number)
+        input.second-&gt;push(second_number)
+    }
+
+    return input
+}
+
+/// Sort the input lists in ASC order
+input_sort :: (input: Input) -&gt; Input {
+    Slice.sort(input.first, (a, b) =&gt; a - b)
+    Slice.sort(input.second, (a, b) =&gt; a - b)
+    return input
+}
+
+/// Creates an Iterator so we can use enumerable procedures
+input_to_iterator :: (input: Input) -&gt; Iterator(Pair(i32, i32)) {
+    return Iterator.zip(
+        Iterator.from(input.first)
+        Iterator.from(input.second)
+    )
+}
+
+/// Read the contents and prepare it for the solutions
+get_input :: () -&gt; Input {
+    return input_read_content()
+    |&gt; input_to_pairs()
+}
+
+/// Count the similarity score comparing first column with a number in second column
+input_count_total_similarity :: (input: Input) -&gt; u64 {
+    total: u64 = 0
+    for first_number in input.first {
+        // We use the ~~ operator to automatically cast the result to u64
+        total += ~~(first_number * Slice.count_where(input.second, [second_number](second_number == first_number)))
+    }
+
+    return total
+}
+
+// MARK: Solutions
+part1 :: () {
+    get_input()
+    |&gt; input_sort()
+    |&gt; input_to_iterator()
+    |&gt; Iterator.map(element =&gt; math.abs(element.first - element.second))
+    |&gt; Iterator.sum()
+    |&gt; printf("The part 1 solution is: {}\n", _)
+}
+
+part2 :: () {
+    get_input()
+    |&gt; input_count_total_similarity()
+    |&gt; printf("The part 2 solution is: {}\n", _)
+}
+
+// MARK: main
+main :: () {
+    part1()
+    part2()
+}
+</code></pre>
+</details>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="theme/onyx-syntax.js"></script>
+
+        <script>
+        window.addEventListener('load', function() {
+            MathJax.Hub.Register.StartupHook('End', function() {
+                window.setTimeout(window.print, 100);
+            });
+        });
+        </script>
+
+    </div>
+    </body>
+</html>

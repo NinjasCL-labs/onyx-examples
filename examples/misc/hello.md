@@ -1,0 +1,49 @@
+# Hello **Onyx** World
+
+This is a (heavily commented) _"Hello, World!"_ program for **Onyx**. It explains
+the very basics of an **Onyx** program.
+
+Every file is part of a package, which is specified on the first line of the file.
+If no package name is specified, the file is implicitly part of the 'main' package.
+So, the package specification below is redudant, but is there for sake of completeness.
+We will talk about the package system more later.
+
+```onyx
+package main
+```
+
+By default, the core standard libraries are included in any **Onyx** program. When
+designing the language, there wer two choices: include the standard libraries
+by default, or have the user include them. As the vast majority of **Onyx** programs
+use the standard library, I opted to include them by default. There is a compiler
+option to disable loading the standard library, if that is needed. For the sake
+of completeness, the following line manually includes the standard library, but
+this is not necessary.
+
+To use packages, use the 'use' keyword. The 'core' package houses all of the
+standard library functions. In the case of this program, we will just be using
+the 'println' function to print something to the screen.
+use core
+
+Below is the procedure declaration for `main`. While it might look weird at first
+sight, **Onyx** uses a consistent syntax for declaring static "things" (functions,
+structures, enums, etc.). It is always,
+
+```onyx
+the_name :: the_thing
+```
+
+In **Onyx** a function is simply parentheses enclosing the arguments, an optional
+return type, then the body. So below, `main` is an alias for a function that
+takes no parameters, and simply prints "Hello, World!". You will see that this
+is the same syntax for just about everything else in the language.
+//
+`main`, like most programming languages, is the entry point for an **Onyx** program.
+In **Onyx**, `main` can either take 0 or 1 parameter(s), that being the command-line
+arguments passed. In programs that do not need them, they can simply be omitted.
+
+```onyx
+main :: () {
+    core.println("Hello, World!");
+}
+```
