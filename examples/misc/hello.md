@@ -13,7 +13,7 @@ package main
 ```
 
 By default, the core standard libraries are included in any **Onyx** program. When
-designing the language, there wer two choices: include the standard libraries
+designing the language, there were two choices: include the standard libraries
 by default, or have the user include them. As the vast majority of **Onyx** programs
 use the standard library, I opted to include them by default. There is a compiler
 option to disable loading the standard library, if that is needed. For the sake
